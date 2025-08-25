@@ -1,10 +1,11 @@
-package com.app.ecom;
+package com.app.ecom.service;
 
+import com.app.ecom.model.User;
+import com.app.ecom.repository.UserRepository;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -12,29 +13,22 @@ import java.util.Optional;
 @Data
 @RequiredArgsConstructor
 public class UserService {
-    long id=1L;
-    List<User> userList=new ArrayList<>();
-    public List<User> getAllUsers(){
-        return userList;
+    private final UserRepository userRepository;
+    public List<User> fetchAllUsers(){
+        return userRepository.findAll();
     }
-    public List<User> addUser(User user){
-        user.setId(id++);
-        userList.add(user);
-        return userList;
+    public User addUser(User user){
+        return userRepository.save(user);
     }
     public Optional<User> fetchUserById(Long id){
-        return userList.stream()
-                .filter(user->user.getId().equals(id))
-                .findFirst();
-
+        return userRepository.findById(id);
     }
     public Boolean updateUser(Long id, User user) {
-        return userList.stream()
-                .filter(user1 -> user1.getId().equals(id))
-                .findFirst()
+        return userRepository.findById(id)
                 .map(existingUser -> {
                     existingUser.setFirstName(user.getFirstName());
                     existingUser.setLastName(user.getLastName());
+                    userRepository.save(existingUser);
                     return true;
                 })
                 .orElse(false);
