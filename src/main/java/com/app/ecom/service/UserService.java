@@ -1,5 +1,8 @@
 package com.app.ecom.service;
 
+import com.app.ecom.dto.UserRequest;
+import com.app.ecom.dto.UserResponse;
+import com.app.ecom.mapper.UserMapper;
 import com.app.ecom.model.User;
 import com.app.ecom.repository.UserRepository;
 import lombok.Data;
@@ -8,38 +11,35 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Data
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
-    public List<User> fetchAllUsers(){
-        return userRepository.findAll();
+    public List<UserResponse> fetchAllUsers(){
+        return userRepository.findAll().stream()
+                .map(UserMapper::mapToUserResponse)
+                .collect(Collectors.toList());
     }
-    public User addUser(User user){
-        return userRepository.save(user);
+    public void addUser(UserRequest userRequest){
+        User user=new User();
+        UserMapper.updateUserFromRequest(user, userRequest);
+        userRepository.save(user);
     }
-    public Optional<User> fetchUserById(Long id){
-        return userRepository.findById(id);
+    public Optional<UserResponse> fetchUserById(Long id){
+        return userRepository.findById(id)
+                .map(UserMapper::mapToUserResponse);
     }
-    public Boolean updateUser(Long id, User user) {
+    public Boolean updateUser(Long id, UserRequest userRequest) {
         return userRepository.findById(id)
                 .map(existingUser -> {
-                    existingUser.setFirstName(user.getFirstName());
-                    existingUser.setLastName(user.getLastName());
+                    existingUser.setFirstName(userRequest.getFirstName());
+                    existingUser.setLastName(userRequest.getLastName());
                     userRepository.save(existingUser);
                     return true;
                 })
                 .orElse(false);
     }
-//        for(User user1:userList){
-//            if(user1.getId().equals(id)){
-//                user1.setFirstName(user.getFirstName());
-//                user1.setLastName(user.getLastName());
-//            }
-//            return user1;
-//        }
-//        return null;
-
 }
