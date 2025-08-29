@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -18,7 +19,8 @@ import java.util.stream.Collectors;
 public class ProductService {
     private final ProductRepository productRepository;
     public ProductResponse createProduct(ProductRequest productRequest){
-        Product product=ProductMapper.updateProductFromRequest(productRequest);
+        Product product=new Product();
+        ProductMapper.updateProductFromRequest(product,productRequest);
         return ProductMapper.mapToProductResponse(productRepository.save(product));
     }
     public List<ProductResponse> fetchAllProducts() {
@@ -26,4 +28,26 @@ public class ProductService {
                 .map(ProductMapper::mapToProductResponse)
                 .collect(Collectors.toList());
     }
+    public Optional<ProductResponse> updateProduct(ProductRequest request, long id){
+        return productRepository.findById(id)
+                .map(existingProduct->{
+                    ProductMapper.updateProductFromRequest(existingProduct,request);
+                    Product savedProduct=productRepository.save(existingProduct);
+                    return ProductMapper.mapToProductResponse(savedProduct);
+                });
+    }
+
 }
+
+
+
+
+
+
+
+
+
+
+
+
+

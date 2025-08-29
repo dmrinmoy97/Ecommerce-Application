@@ -17,4 +17,5 @@ public class ProductResponse {
     private String category;
     private String imageUrl;
     private Boolean active=true;
+    private Integer stockQuantity;
 }
